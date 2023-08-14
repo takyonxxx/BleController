@@ -31,6 +31,11 @@ private:
     void addService(const QLowEnergyServiceData &serviceData);       
     void reconnect();
 
+    QScopedPointer<QLowEnergyController> leController;
+    QHash<QBluetoothUuid, ServicePtr> services;
+    QBluetoothAddress remoteDevice;
+    bool m_ConnectionState = false;
+
     QLowEnergyServiceData serviceData{};
     QLowEnergyAdvertisingParameters params{};
     QLowEnergyAdvertisingData advertisingData{};

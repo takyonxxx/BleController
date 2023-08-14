@@ -1,5 +1,5 @@
-QT += core gui quick bluetooth
-
+QT += core bluetooth
+android|darwin: QT += gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
@@ -19,10 +19,12 @@ FORMS += \
 INCLUDEPATH += .
 
 ios {
-    QMAKE_INFO_PLIST = ios/Info.plist
+    QMAKE_INFO_PLIST = ./shared/Info.qmake.ios.plist
     QMAKE_ASSET_CATALOGS = $$PWD/ios/Assets.xcassets
     QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
+
+macos: QMAKE_INFO_PLIST = ./shared/Info.qmake.macos.plist
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -36,3 +38,8 @@ contains(ANDROID_TARGET_ARCH,arm64-v8a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
 }
+
+DISTFILES += \
+    shared/Info.cmake.ios.plist \
+    shared/Info.cmake.macos.plist \
+    shared/Info.qmake.ios.plist
