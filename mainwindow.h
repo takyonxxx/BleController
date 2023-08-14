@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <gattserver.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,9 +16,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void dataHandler(QByteArray data);    
-    void statusChanged(const QString &status);
+private:
+    GattServer *gattServer{};
+    void appendText(QString);
+
+private slots:   
+    void onConnectionStatedChanged(bool);
+    void onDataReceived(QByteArray);
+    void onInfoReceived(QString);
     void on_m_pBExit_clicked();
     void on_m_pBConnect_clicked();
 
