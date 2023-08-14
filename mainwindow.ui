@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="text">
-       <string>Connect</string>
+       <string>Start</string>
       </property>
      </widget>
     </item>
@@ -41,8 +41,18 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QTextBrowser" name="m_textStatus"/>
+    </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="checkMode">
+      <property name="text">
+       <string>Run As Gatt Server</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

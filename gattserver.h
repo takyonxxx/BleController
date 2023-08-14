@@ -25,16 +25,15 @@ public:
     void readValue();
     void writeValue(const QByteArray &value);
     void startBleService();
+    void stopBluetoothService();
 
 private:
-    void addService(const QLowEnergyServiceData &serviceData);    
-    void resetBluetoothService();
+    void addService(const QLowEnergyServiceData &serviceData);       
     void reconnect();
 
     QLowEnergyServiceData serviceData{};
     QLowEnergyAdvertisingParameters params{};
     QLowEnergyAdvertisingData advertisingData{};
-    QString statusText{};
 
     static GattServer *theInstance_;
 

@@ -33,8 +33,7 @@ GattServer::~GattServer()
 
 void GattServer::controllerError(QLowEnergyController::Error error)
 {
-    statusText = QString("Controller Error: %1").arg(error);
-    qDebug() << statusText;
+    auto statusText = QString("Controller Error: %1").arg(error);
     emit sendInfo(statusText);
 }
 
@@ -43,8 +42,7 @@ void GattServer::handleConnected()
     remoteDevice = bleController.data()->remoteAddress();
     m_ConnectionState = true;
     emit connectionState(m_ConnectionState);
-    qDebug() << "Connected to " <<  remoteDevice;
-    statusText = QString("Connected to %1").arg(remoteDevice.toString());
+    auto statusText = QString("Connected to %1").arg(remoteDevice.toString());
     emit sendInfo(statusText);
 }
 
@@ -59,8 +57,7 @@ void GattServer::handleDisconnected()
 
     if(bleController->state() == QLowEnergyController::UnconnectedState)
     {
-        qDebug() << "Disconnected from " <<  remoteDevice;
-        statusText = QString("Disconnected from %1").arg(remoteDevice.toString());
+        auto statusText = QString("Disconnected from %1").arg(remoteDevice.toString());
         emit sendInfo(statusText);
     }
 
@@ -114,25 +111,32 @@ void GattServer::startBleService()
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);   
     advertisingData.setServices(services.keys());
     advertisingData.setIncludePowerLevel(true);
-    advertisingData.setLocalName("BlueZ");
+    advertisingData.setLocalName("Meta Quest2");
     bleController->startAdvertising(params, advertisingData);
 
     // We have to check if advertising succeeded ot not. If there was an advertising error we will
     // try to reinitialize our bluetooth service
     while (bleController->state()!= QLowEnergyController::AdvertisingState){
-        resetBluetoothService();
+        stopBluetoothService();
         bleController->startAdvertising(params, advertisingData);
     }
-    statusText = QString("Listening for Ble connection %1").arg(advertisingData.localName());
-    emit sendInfo(statusText);
+
+    if(bleController->state()== QLowEnergyController::AdvertisingState)
+    {
+        auto statusText = QString("Listening for Ble connection %1").arg(advertisingData.localName());
+        emit sendInfo(statusText);
+    }
+    else
+    {
+        auto statusText = QString("Ble connection can not start for %1").arg(advertisingData.localName());
+        emit sendInfo(statusText);
+    }
 }
 
 void GattServer::reconnect()
 {
     try{
         if(bleController->state()== QLowEnergyController::UnconnectedState){
-
-            qDebug() << "Trying to reconnect Bluetooth.";
 
             //bleController.reset(QLowEnergyController::createPeripheral());
             services.clear();
@@ -151,13 +155,20 @@ void GattServer::reconnect()
             // We have to check if advertising succeeded ot not. If there was an advertising error we will
             // try to reinitialize our bluetooth service
             while (bleController->state()!= QLowEnergyController::AdvertisingState){
-                resetBluetoothService();
+                stopBluetoothService();
                 bleController->startAdvertising(params, advertisingData);
             }
 
-            qDebug() << "Listening for Ble connection " << advertisingData.localName();
-            statusText = QString("Listening for Ble connection %1").arg(advertisingData.localName());
-            emit sendInfo(statusText);
+            if(bleController->state()== QLowEnergyController::AdvertisingState)
+            {
+                auto statusText = QString("Listening for Ble connection %1").arg(advertisingData.localName());
+                emit sendInfo(statusText);
+            }
+            else
+            {
+                auto statusText = QString("Ble connection can not start for %1").arg(advertisingData.localName());
+                emit sendInfo(statusText);
+            }
         }
     }
     catch(std::exception e){
@@ -166,19 +177,24 @@ void GattServer::reconnect()
 }
 
 
-void GattServer::resetBluetoothService()
+void GattServer::stopBluetoothService()
 {
     try{
 
         if(bleController->state()==QLowEnergyController::AdvertisingState)
             bleController->stopAdvertising();
 
-        qDebug() << "Resetting Ble connection.";
+        if(bleController->state()==QLowEnergyController::UnconnectedState)
+        {
+            auto statusText = QString("Ble connection stopped for %1").arg(advertisingData.localName());
+            emit sendInfo(statusText);
+        }
+        else
+        {
+            auto statusText = QString("Ble connection can not stopped for %1").arg(advertisingData.localName());
+            emit sendInfo(statusText);
+        }
 
-//        system("sudo service bluetooth stop");
-//        QThread::sleep(1);
-//        system("sudo service bluetooth start");
-//        QThread::sleep(1);
     }
     catch(std::exception e){
     }
