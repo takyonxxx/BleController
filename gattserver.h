@@ -8,6 +8,10 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qscopedpointer.h>
 
+#define SERVICEUUID   "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define RXUUID        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define TXUUID        "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+
 QT_USE_NAMESPACE
 
 typedef QSharedPointer<QLowEnergyService> ServicePtr;
@@ -25,20 +29,23 @@ public:
     void readValue();
     void writeValue(const QByteArray &value);
     void startBleService();
-    void stopBluetoothService();
+    void stopBleService();
 
 private:
-    void addService(const QLowEnergyServiceData &serviceData);       
-    void reconnect();
+    void addService(const QLowEnergyServiceData &serviceData);
 
     QScopedPointer<QLowEnergyController> leController;
     QHash<QBluetoothUuid, ServicePtr> services;
     QBluetoothAddress remoteDevice;
+    QBluetoothUuid remoteDeviceUuid;
     bool m_ConnectionState = false;
 
     QLowEnergyServiceData serviceData{};
     QLowEnergyAdvertisingParameters params{};
     QLowEnergyAdvertisingData advertisingData{};
+
+    QTimer *writeTimer{};
+    void writeValuePeriodically();
 
     static GattServer *theInstance_;
 

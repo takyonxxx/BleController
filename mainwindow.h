@@ -18,7 +18,6 @@ public:
 
 private:
     GattServer *gattServer{};
-    bool gatt_started{false};
     void appendText(QString);
 
 private slots:   
@@ -27,9 +26,6 @@ private slots:
     void onInfoReceived(QString);
     void on_m_pBExit_clicked();
     void on_m_pBConnect_clicked();
-
-    void on_checkMode_stateChanged(int arg1);
-
 private:
     Ui::MainWindow *ui;
 };

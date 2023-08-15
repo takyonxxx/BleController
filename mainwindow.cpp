@@ -6,18 +6,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(tr("Ble Remote Control"));
+    setWindowTitle(tr("Ble Gatt Server"));
 
     ui->m_textStatus->setStyleSheet("font-size: 12pt; color: #cccccc; background-color: #003333;");
     ui->m_pBConnect->setStyleSheet("font-size: 24pt; font: bold; color: #ffffff; background-color: #336699;");
     ui->m_pBExit->setStyleSheet("font-size: 24pt; font: bold; color: #ffffff; background-color: #239566;");
-
     gattServer = GattServer::getInstance();
-    QString textToAppend = "SERVICEUUID   6E400001-B5A3-F393-E0A9-E50E24DCCA9E\n"
-                           "RXUUID        6E400002-B5A3-F393-E0A9-E50E24DCCA9E\n"
-                           "TXUUID        6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
-
-    appendText(textToAppend);
+    QObject::connect(gattServer, &GattServer::connectionState, this, &MainWindow::onConnectionStatedChanged);
+    QObject::connect(gattServer, &GattServer::dataReceived, this, &MainWindow::onDataReceived);
+    QObject::connect(gattServer, &GattServer::sendInfo, this, &MainWindow::onInfoReceived);
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +42,7 @@ void MainWindow::onConnectionStatedChanged(bool state)
 void MainWindow::onDataReceived(QByteArray data)
 {
     QString convertedString = QString::fromUtf8(data);
-    appendText(convertedString);
+    appendText("Received : " + convertedString);
 }
 
 void MainWindow::onInfoReceived(QString info)
@@ -62,71 +59,22 @@ void MainWindow::on_m_pBExit_clicked()
 void MainWindow::on_m_pBConnect_clicked()
 {
     if(ui->m_pBConnect->text() == QString("Start"))
-    {
-        if (ui->checkMode->isChecked())
-        {
-            ui->m_textStatus->clear();
-            gattServer = GattServer::getInstance();
-            if(gattServer)
-            {
-                QObject::connect(gattServer, &GattServer::connectionState, this, &MainWindow::onConnectionStatedChanged);
-                QObject::connect(gattServer, &GattServer::dataReceived, this, &MainWindow::onDataReceived);
-                QObject::connect(gattServer, &GattServer::sendInfo, this, &MainWindow::onInfoReceived);
-                gattServer->startBleService();
-                gatt_started = true;
-                QString textToAppend = "SERVICEUUID   6E400001-B5A3-F393-E0A9-E50E24DCCA9E\n"
-                                       "RXUUID        6E400002-B5A3-F393-E0A9-E50E24DCCA9E\n"
-                                       "TXUUID        6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
-
-                appendText(textToAppend);
-            }
-            ui->m_pBConnect->setText("Stop");
-        }
-
-    }
-    else
-    {
-        if (ui->checkMode->isChecked())
-        {
-            gattServer->stopBluetoothService();
-            gatt_started = false;
-        }
-
-        ui->m_pBConnect->setText("Start");
-    }
-}
-
-
-void MainWindow::on_checkMode_stateChanged(int arg1)
-{
-
-    if (arg1 != 0)
-    {
+    {        
         ui->m_textStatus->clear();
-        gattServer = GattServer::getInstance();
         if(gattServer)
         {
-            QObject::connect(gattServer, &GattServer::connectionState, this, &MainWindow::onConnectionStatedChanged);
-            QObject::connect(gattServer, &GattServer::dataReceived, this, &MainWindow::onDataReceived);
-            QObject::connect(gattServer, &GattServer::sendInfo, this, &MainWindow::onInfoReceived);            
             gattServer->startBleService();
-            gatt_started = true;
             QString textToAppend = "SERVICEUUID   6E400001-B5A3-F393-E0A9-E50E24DCCA9E\n"
                                    "RXUUID        6E400002-B5A3-F393-E0A9-E50E24DCCA9E\n"
                                    "TXUUID        6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
 
             appendText(textToAppend);
-            ui->m_pBConnect->setText("Stop");
         }
+        ui->m_pBConnect->setText("Stop");
     }
     else
-    {
-        if(gattServer)
-        {
-            gattServer->stopBluetoothService();
-            gatt_started = false;
-            ui->m_pBConnect->setText("Start");
-        }
+    {        
+        gattServer->stopBleService();
+        ui->m_pBConnect->setText("Start");
     }
 }
-
