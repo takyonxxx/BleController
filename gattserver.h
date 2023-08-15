@@ -7,6 +7,7 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qscopedpointer.h>
+#include "sensors.h"
 
 #define SERVICEUUID   "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 #define RXUUID        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -29,6 +30,7 @@ public:
     void readValue();
     void writeValue(const QByteArray &value);
     void startBleService();
+    void startSensors();
     void stopBleService();
 
 private:
@@ -47,6 +49,8 @@ private:
     QTimer *writeTimer{};
     void writeValuePeriodically();
 
+    Sensors *m_sensors{};
+
     static GattServer *theInstance_;
 
 signals:
@@ -59,7 +63,7 @@ private slots:
 
     //QLowEnergyService
     void onCharacteristicChanged(const QLowEnergyCharacteristic &c, const QByteArray &value);
-
+    void onInfoReceived(QString);
     void handleConnected();
     void handleDisconnected();
     void controllerError(QLowEnergyController::Error error);

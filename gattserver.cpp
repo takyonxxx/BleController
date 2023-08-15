@@ -26,6 +26,12 @@ GattServer::~GattServer()
 {
 }
 
+void GattServer::onInfoReceived(QString info)
+{
+    qDebug() << info;
+    emit sendInfo(info);
+}
+
 void GattServer::controllerError(QLowEnergyController::Error error)
 {
     auto statusText = QString("Controller Error: %1").arg(error);
@@ -123,6 +129,18 @@ void GattServer::startBleService()
         auto statusText = QString("Ble connection can not start for %1").arg(advertisingData.localName());
         emit sendInfo(statusText);
     }
+
+#ifdef Q_OS_ANDROID
+    m_sensors = new Sensors(this);
+    QObject::connect(m_sensors, &Sensors::sendInfo, this, &GattServer::onInfoReceived);
+    m_sensors->getSensorInfo();
+#endif
+
+}
+
+void GattServer::startSensors()
+{
+
 }
 
 void GattServer::stopBleService()

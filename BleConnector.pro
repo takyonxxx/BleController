@@ -1,4 +1,4 @@
-QT += core bluetooth
+QT += core bluetooth positioning sensors
 android|darwin: QT += gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -6,12 +6,16 @@ CONFIG += c++17
 
 SOURCES += \
     gattserver.cpp \
+    kalmanfilter.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    sensors.cpp
 
 HEADERS += \
     gattserver.h \
-    mainwindow.h
+    kalmanfilter.h \
+    mainwindow.h \
+    sensors.h
 
 FORMS += \
     mainwindow.ui
@@ -25,6 +29,10 @@ ios {
 }
 
 macos: QMAKE_INFO_PLIST = ./shared/Info.qmake.macos.plist
+
+android {
+
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
