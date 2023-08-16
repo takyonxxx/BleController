@@ -15,11 +15,7 @@ GattServer::GattServer(QObject *parent) : QObject(parent)
 {
     qRegisterMetaType<QLowEnergyController::ControllerState>();
     qRegisterMetaType<QLowEnergyController::Error>();
-    qRegisterMetaType<QLowEnergyConnectionParameters>();
-
-    // Initialize the timer
-    writeTimer = new QTimer(this);
-    connect(writeTimer, &QTimer::timeout, this, &GattServer::writeValuePeriodically);
+    qRegisterMetaType<QLowEnergyConnectionParameters>();   
 }
 
 GattServer::~GattServer()
@@ -28,8 +24,13 @@ GattServer::~GattServer()
 
 void GattServer::onInfoReceived(QString info)
 {
-    qDebug() << info;
     emit sendInfo(info);
+}
+
+void GattServer::onSensorReceived(QString sensor_value)
+{
+    QByteArray textData = sensor_value.toUtf8();
+    writeValue(textData);
 }
 
 void GattServer::controllerError(QLowEnergyController::Error error)
@@ -58,7 +59,7 @@ void GattServer::handleDisconnected()
 
     if(leController->state() == QLowEnergyController::UnconnectedState)
     {
-        auto statusText = QString("Disconnected from %1").arg(remoteDevice.toString());
+        auto statusText = QString("Disconnected from %1").arg(remoteDeviceUuid.toString());
         emit sendInfo(statusText);
     }
 }
@@ -73,10 +74,11 @@ void GattServer::addService(const QLowEnergyServiceData &serviceData)
 
 void GattServer::startBleService()
 {
+
     leController.reset(QLowEnergyController::createPeripheral());
 
     serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceData.setUuid(QBluetoothUuid(QUuid(SERVICEUUID)));
+    serviceData.setUuid(QBluetoothUuid::ServiceClassUuid::ScanParameters);
 
     QLowEnergyCharacteristicData charRxData;
     charRxData.setUuid(QBluetoothUuid(QUuid(RXUUID)));
@@ -96,7 +98,7 @@ void GattServer::startBleService()
 
     addService(serviceData);
 
-    const ServicePtr service = services.value(QBluetoothUuid(QUuid(SERVICEUUID)));
+    const ServicePtr service = services.value(QBluetoothUuid::ServiceClassUuid::ScanParameters);
     Q_ASSERT(service);
 
     QObject::connect(leController.data(), &QLowEnergyController::connected, this, &GattServer::handleConnected);
@@ -106,7 +108,6 @@ void GattServer::startBleService()
     QObject::connect(service.data(), &QLowEnergyService::characteristicChanged, this, &GattServer::onCharacteristicChanged);
     QObject::connect(service.data(), &QLowEnergyService::characteristicRead, this, &GattServer::onCharacteristicChanged);
 
-    params.setMode(QLowEnergyAdvertisingParameters::AdvInd);
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setServices(services.keys());
     advertisingData.setIncludePowerLevel(true);
@@ -115,12 +116,12 @@ void GattServer::startBleService()
     // We have to check if advertising succeeded ot not. If there was an advertising error we will
     // try to reinitialize our bluetooth service
     while (leController->state()!= QLowEnergyController::AdvertisingState){
-        leController->startAdvertising(params, advertisingData, advertisingData);
+        leController->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData, advertisingData);
     }
 
     if(leController->state()== QLowEnergyController::AdvertisingState)
     {
-        writeTimer->start(1000);
+        // writeTimer->start(1000);
         auto statusText = QString("Listening for Ble connection %1").arg(advertisingData.localName());
         emit sendInfo(statusText);
     }
@@ -130,17 +131,16 @@ void GattServer::startBleService()
         emit sendInfo(statusText);
     }
 
-#ifdef Q_OS_ANDROID
-    m_sensors = new Sensors(this);
-    QObject::connect(m_sensors, &Sensors::sendInfo, this, &GattServer::onInfoReceived);
-    m_sensors->getSensorInfo();
-#endif
+    startSensors();
 
 }
 
 void GattServer::startSensors()
 {
-
+    m_sensors = Sensors::getInstance();
+    QObject::connect(m_sensors, &Sensors::sendInfo, this, &GattServer::onInfoReceived);
+    QObject::connect(m_sensors, &Sensors::sendSensorValue, this, &GattServer::onSensorReceived);
+    m_sensors->startSensors();
 }
 
 void GattServer::stopBleService()
@@ -149,7 +149,7 @@ void GattServer::stopBleService()
     {
         QByteArray textData = "Ble service stopped!";
         writeValue(textData);
-        writeTimer->stop();
+        m_sensors->stopSensors();
 
         if (leController->state() == QLowEnergyController::ConnectedState)
             leController->disconnectFromDevice();
@@ -167,7 +167,7 @@ void GattServer::stopBleService()
 
 void GattServer::readValue()
 {
-    const ServicePtr service = services.value(QBluetoothUuid(QUuid(SERVICEUUID)));
+    const ServicePtr service = services.value(QBluetoothUuid::ServiceClassUuid::ScanParameters);
     Q_ASSERT(service);
 
     QLowEnergyCharacteristic cCharacteristic = service->characteristic(QBluetoothUuid(QUuid(TXUUID)));
@@ -177,7 +177,7 @@ void GattServer::readValue()
 
 void GattServer::writeValue(const QByteArray &value)
 {
-    const ServicePtr service = services.value(QBluetoothUuid(QUuid(SERVICEUUID)));
+    const ServicePtr service = services.value(QBluetoothUuid::ServiceClassUuid::ScanParameters);
     Q_ASSERT(service);
 
     QLowEnergyCharacteristic cCharacteristic = service->characteristic(QBluetoothUuid(QUuid(RXUUID)));

@@ -8,7 +8,7 @@
 #include <QGyroscope>
 #include <QPressureSensor>
 #include <QDateTime>
-#include "kalmanfilter.h"
+//#include "kalmanfilter.h"
 
 #define KF_VAR_ACCEL 0.0075 // Variance of pressure acceleration noise input.
 #define KF_VAR_MEASUREMENT 0.05 // Variance of pressure measurement noise.
@@ -24,83 +24,21 @@ class Sensors : public QObject
     Q_OBJECT
 public:
     explicit Sensors(QObject *parent = nullptr);
+    static Sensors* getInstance();
 public:
-    void getSensorInfo();
+    void startSensors();
+    void stopSensors();
 private:
-
-    QTimer *writeTimer{};
-
-    QPressureSensor *sensorPress;
-    QPressureReading *pressureReading;
 
     QAccelerometer *sensorAcc;
     QAccelerometerReading *accelerometerReading;
+    static Sensors *theInstance_;
 
-    QGyroscope *sensorGyr;
-    QGyroscopeReading * gyroscopeReading;
-
-    QString text_presssure;
-    QDateTime p_start;
-    QDateTime p_end;
-    QDateTime a_start;
-    QDateTime a_end;
-    QDateTime g_start;
-    QDateTime g_end;
-
-    KalmanFilter *pitch_filter;
-    KalmanFilter *roll_filter;
-    KalmanFilter *yaw_filter;
-    KalmanFilter *slipskid_filter;
-    KalmanFilter *turnrate_filter;
-    KalmanFilter *pressure_filter;
-    KalmanFilter *altitude_filter;
-    qreal p_dt;
-    qreal a_dt;
-    qreal g_dt;
-    qreal pressure;
-    qreal temperature;
-    qreal baroaltitude;
-    qreal altitude;
-    qreal vario;
-    qreal offset;
-    qreal oldaltitude;
-
-    int tCount;
-
-    qreal alpha             ;
-    qreal beta              ;
-    qreal roll              ;
-    qreal pitch             ;
-    qreal yaw               ;
-    qreal heading           ;
-    qreal slipSkid          ;
-    qreal turnRate          ;
-    qreal devH              ;
-    qreal devV              ;
-    qreal groundspeed       ;
-    qreal sensoralt         ;
-    qreal sensorpressure    ;
-    qreal climbRate         ;
-    qreal machNo            ;
-    qreal adf               ;
-    qreal distance          ;
-
-    quint64 lastPressTimestamp ;
-    qreal pDeltaT ;
-
-    quint64 lastAccTimestamp ;
-    qreal aDeltaT ;
-
-    quint64 lastGyroTimestamp;      ///< Most recent gyroscope measurement timestamp
-    qreal gDeltaT;                  ///< Latest time slice for angular velocity
-
-    void writeValuePeriodically();
 signals:
     void sendInfo(QString);
+    void sendSensorValue(QString);
 
 private slots:
-    void gyroscope_changed();
-    void pressure_changed();
     void accelerometer_changed();
 };
 

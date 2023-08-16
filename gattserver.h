@@ -64,6 +64,7 @@ private slots:
     //QLowEnergyService
     void onCharacteristicChanged(const QLowEnergyCharacteristic &c, const QByteArray &value);
     void onInfoReceived(QString);
+    void onSensorReceived(QString);
     void handleConnected();
     void handleDisconnected();
     void controllerError(QLowEnergyController::Error error);
