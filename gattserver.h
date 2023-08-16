@@ -67,7 +67,7 @@ private slots:
     void onSensorReceived(QString);
     void handleConnected();
     void handleDisconnected();
-    void controllerError(QLowEnergyController::Error error);
+    void errorOccurred(QLowEnergyController::Error newError);
 };
 
 #endif

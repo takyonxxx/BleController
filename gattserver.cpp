@@ -33,12 +33,6 @@ void GattServer::onSensorReceived(QString sensor_value)
     writeValue(textData);
 }
 
-void GattServer::controllerError(QLowEnergyController::Error error)
-{
-    auto statusText = QString("Controller Error: %1").arg(error);
-    emit sendInfo(statusText);
-}
-
 void GattServer::handleConnected()
 {
     remoteDeviceUuid = leController.data()->remoteDeviceUuid();
@@ -62,6 +56,12 @@ void GattServer::handleDisconnected()
         auto statusText = QString("Disconnected from %1").arg(remoteDeviceUuid.toString());
         emit sendInfo(statusText);
     }
+}
+
+void GattServer::errorOccurred(QLowEnergyController::Error newError)
+{
+    auto statusText = QString("Controller Error: %1").arg(newError);
+    emit sendInfo(statusText);
 }
 
 void GattServer::addService(const QLowEnergyServiceData &serviceData)
@@ -103,7 +103,7 @@ void GattServer::startBleService()
 
     QObject::connect(leController.data(), &QLowEnergyController::connected, this, &GattServer::handleConnected);
     QObject::connect(leController.data(), &QLowEnergyController::disconnected, this, &GattServer::handleDisconnected);
-    QObject::connect(leController.data(), SIGNAL(error(QLowEnergyController::Error)), this, SLOT(controllerError(QLowEnergyController::Error)));
+    QObject::connect(leController.data(), &QLowEnergyController::errorOccurred, this, &GattServer::errorOccurred);
 
     QObject::connect(service.data(), &QLowEnergyService::characteristicChanged, this, &GattServer::onCharacteristicChanged);
     QObject::connect(service.data(), &QLowEnergyService::characteristicRead, this, &GattServer::onCharacteristicChanged);

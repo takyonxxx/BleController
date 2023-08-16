@@ -29,7 +29,6 @@ public:
     void startSensors();
     void stopSensors();
 private:
-
     QAccelerometer *sensorAcc;
     QAccelerometerReading *accelerometerReading;
     static Sensors *theInstance_;
