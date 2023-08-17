@@ -5,8 +5,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QAccelerometer>
-#include <QGyroscope>
-#include <QPressureSensor>
+#include <QOrientationSensor>
+#include <QAmbientLightSensor>
+#include <QTiltSensor>
 #include <QDateTime>
 //#include "kalmanfilter.h"
 
@@ -16,7 +17,7 @@
 #define RADIANS_TO_DEGREES 57.2957795
 
 #ifdef Q_OS_ANDROID
-    #include <QSensor>
+#include <QSensor>
 #endif
 
 class Sensors : public QObject
@@ -29,8 +30,10 @@ public:
     void startSensors();
     void stopSensors();
 private:
-    QAccelerometer *sensorAcc;
-    QAccelerometerReading *accelerometerReading;
+    QAccelerometer *sensorAccelerometer = nullptr;
+    QOrientationSensor *sensorOrientation = nullptr;
+    QAmbientLightSensor *sensorAmbientLight = nullptr;
+    QTiltSensor *sensorTilt = nullptr;
     static Sensors *theInstance_;
 
 signals:
@@ -39,6 +42,9 @@ signals:
 
 private slots:
     void accelerometer_changed();
+    void orientation_changed();
+    void ambientLight_changed();
+    void tilt_changed();
 };
 
 #endif // SENSORS_H
