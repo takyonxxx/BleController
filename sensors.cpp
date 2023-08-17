@@ -209,7 +209,7 @@ void Sensors::ambientLight_changed()
             QAmbientLightReading *reading = sensorAmbientLight->reading();
             if (reading) {
                 qreal lux = reading->lightLevel();
-                emit sendInfo(QString::number(lux, 'f', 2));
+//                emit sendInfo(QString::number(lux, 'f', 2));
             }
         }
 }
