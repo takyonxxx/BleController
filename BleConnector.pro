@@ -1,8 +1,8 @@
-QT += core bluetooth positioning sensors
+QT += core bluetooth sensors
 android|darwin: QT += gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17
+CONFIG += mobility
 
 SOURCES += \
     gattserver.cpp \
@@ -22,7 +22,14 @@ FORMS += \
 
 INCLUDEPATH += .
 
+win32 {
+    message("Win32 enabled")
+     DEFINES += WIN32_LEAN_AND_MEAN
+    RC_ICONS += $$PWD\icons\bluetooth-logo.png
+}
+
 ios {
+    message("ios enabled")
     QMAKE_INFO_PLIST = ./shared/Info.qmake.ios.plist
     QMAKE_ASSET_CATALOGS = $$PWD/ios/Assets.xcassets
     QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
@@ -31,8 +38,9 @@ ios {
 macos: QMAKE_INFO_PLIST = ./shared/Info.qmake.macos.plist
 
 android {
-
+    message("android enabled")
 }
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -41,11 +49,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
-
-contains(ANDROID_TARGET_ARCH,arm64-v8a) {
-    ANDROID_PACKAGE_SOURCE_DIR = \
-        $$PWD/android
-}
 
 DISTFILES += \
     shared/Info.cmake.ios.plist \
