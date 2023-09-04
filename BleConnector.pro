@@ -3,6 +3,7 @@ android|darwin: QT += gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += mobility
+MOBILITY+=sensors
 
 SOURCES += \
     gattserver.cpp \
@@ -24,7 +25,7 @@ INCLUDEPATH += .
 
 win32 {
     message("Win32 enabled")
-     DEFINES += WIN32_LEAN_AND_MEAN
+    DEFINES += WIN32_LEAN_AND_MEAN
     RC_ICONS += $$PWD\icons\bluetooth-logo.png
 }
 
