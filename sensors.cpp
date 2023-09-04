@@ -131,7 +131,6 @@ void Sensors::startSensors()
     }
 
 #else
-    qDebug() << "This code is meant for Android only.";
     emit sendInfo("This code is meant for Android only.");
 #endif
 }
@@ -177,12 +176,12 @@ void Sensors::accelerometer_changed()
         QAccelerometerReading * accelerometerReading = sensorAccelerometer->reading();
         if (accelerometerReading)
         {
-            qreal x = accelerometerReading->property("x").value<qreal>();
-            qreal y = accelerometerReading->property("y").value<qreal>();
-            qreal z = accelerometerReading->property("z").value<qreal>();
-            quint64 timestamp = sensorAccelerometer->reading()->timestamp();
+            qreal x = accelerometerReading->x();
+            qreal y = accelerometerReading->y();
+            qreal z = accelerometerReading->z();
+//            quint64 timestamp = sensorAccelerometer->reading()->timestamp();
 
-            auto statusText = QString("time: %1 x: %2 y: %3 z: %4").arg(timestamp).arg(x).arg(y).arg(z);
+            auto statusText = QString("x: %1 y: %2 z: %3").arg(x).arg(y).arg(z);
             emit sendSensorValue(statusText);
 
             // Update the last emit timestamp
@@ -197,8 +196,10 @@ void Sensors::orientation_changed()
             // Retrieve the orientation reading and process it
             QOrientationReading *reading = sensorOrientation->reading();
             if (reading) {
+                auto orientation =reading->orientation();
+                auto statusText = QString("Orientation: %1").arg(orientation);
+                emit sendSensorValue(statusText);
             }
-
         }
 }
 
@@ -209,7 +210,7 @@ void Sensors::ambientLight_changed()
             QAmbientLightReading *reading = sensorAmbientLight->reading();
             if (reading) {
                 qreal lux = reading->lightLevel();
-//                emit sendInfo(QString::number(lux, 'f', 2));
+                emit sendInfo(QString::number(lux, 'f', 2));
             }
         }
 }
@@ -220,6 +221,10 @@ void Sensors::tilt_changed()
             // Retrieve the ambient light reading and process it
             QTiltReading *reading = sensorTilt->reading();
             if (reading) {
+                auto xRotation = reading->xRotation();
+                auto yRotation = reading->yRotation();
+                auto statusText = QString("xRotation: %1 yRotation: %2").arg(xRotation).arg(yRotation);
+                emit sendSensorValue(statusText);
             }
         }
 }
