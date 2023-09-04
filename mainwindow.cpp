@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(gattServer, &GattServer::connectionState, this, &MainWindow::onConnectionStatedChanged);
     QObject::connect(gattServer, &GattServer::dataReceived, this, &MainWindow::onDataReceived);
     QObject::connect(gattServer, &GattServer::sendInfo, this, &MainWindow::onInfoReceived);
+
 }
 
 MainWindow::~MainWindow()
