@@ -130,9 +130,6 @@ void GattServer::startBleService()
         auto statusText = QString("Ble connection can not start for %1").arg(advertisingData.localName());
         emit sendInfo(statusText);
     }
-
-    startSensors();
-
 }
 
 void GattServer::startSensors()

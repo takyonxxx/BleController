@@ -70,6 +70,7 @@ void MainWindow::on_m_pBConnect_clicked()
                                    "TXUUID        6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
 
             appendText(textToAppend);
+            gattServer->startSensors();
         }
         ui->m_pBConnect->setText("Stop");
     }

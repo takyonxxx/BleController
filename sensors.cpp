@@ -20,12 +20,16 @@ Sensors::Sensors(QObject *parent)
 void Sensors::startSensors()
 {
 #ifdef Q_OS_ANDROID
+
     QList<QByteArray> sensorTypes = QSensor::sensorTypes();
-    qDebug() << "Available Sensor Types:";
-    foreach (const QByteArray &type, QSensor::sensorTypes()) {
+    auto statusText = QString("Sensors count : %1").arg(sensorTypes.count());
+    emit sendInfo(statusText);
+
+    foreach (const QByteArray &type, sensorTypes) {
         foreach (const QByteArray &identifier, QSensor::sensorsForType(type)) {
             // Don't put in sensors we can't connect to
             QSensor sensor(type);
+
             sensor.setIdentifier(identifier);
             if (!sensor.connectToBackend()) {
                 qDebug() << "Couldn't connect to " + identifier;
