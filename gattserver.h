@@ -7,7 +7,6 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qscopedpointer.h>
-#include "sensors.h"
 
 #define SERVICEUUID   "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 #define RXUUID        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -30,8 +29,9 @@ public:
     void readValue();
     void writeValue(const QByteArray &value);
     void startBleService();
-    void startSensors();
     void stopBleService();
+    void resetBluetoothService();
+    void reConnect();
 
 private:
     void addService(const QLowEnergyServiceData &serviceData);
@@ -48,8 +48,6 @@ private:
 
     QTimer *writeTimer{};
     void writeValuePeriodically();
-
-    Sensors *m_sensors{};
 
     static GattServer *theInstance_;
 
